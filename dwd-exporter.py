@@ -20,7 +20,7 @@ wind_direction_mean = Gauge('dwd_wind_direction_mean', 'Mean wind direction in d
 wind_speed_mean = Gauge('dwd_wind_speed_mean', 'Mean wind speed in km/h', ['station_id'])
 
 if __name__ == '__main__':
-    print("DWD exporter v0.1\n")
+    print("DWD exporter v0.2\n")
     station_ids = 'E298,10400,10113'
     server_port = 3825
 
@@ -51,11 +51,11 @@ if __name__ == '__main__':
                 cloud_cover_total.labels(station_id=st_id).set(station['cloudCoverTotal'])
             if 'totalSnow' in station:
                 total_snow.labels(station_id=st_id).set(station['totalSnow'] / 10.0)
-            if 'windspeedmax' in station:
+            if 'windspeedmax' in station and station['windspeedmax'] < 32767:
                 wind_speed_max.labels(station_id=st_id).set(station['windspeedmax'] / 10.0)
             if 'winddirectionmean' in station:
                 wind_direction_mean.labels(station_id=st_id).set(station['winddirectionmean'] / 10.0)
-            if 'windspeedmean' in station:
+            if 'windspeedmean' in station and station['windspeedmean'] < 32767:
                 wind_speed_mean.labels(station_id=st_id).set(station['windspeedmean'] / 10.0)
 
         time.sleep(300)
