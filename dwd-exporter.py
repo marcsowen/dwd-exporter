@@ -19,7 +19,10 @@ wind_speed_max = Gauge('dwd_wind_speed_max', 'Max. wind speed in km/h', ['statio
 wind_direction_mean = Gauge('dwd_wind_direction_mean', 'Mean wind direction in degrees', ['station_id'])
 wind_speed_mean = Gauge('dwd_wind_speed_mean', 'Mean wind speed in km/h', ['station_id'])
 
-if __name__ == '__main__':
+def is_valid(station, value) -> bool:
+    return value in station and station[value] is not None and station[value] < 32767
+
+def main():
     print("DWD exporter v0.2\n")
     station_ids = 'E298,10400,10113'
     server_port = 3825
@@ -35,27 +38,30 @@ if __name__ == '__main__':
         for st_id in response['data']:
             station = response['data'][st_id]
             timestamp.labels(station_id=st_id).set(station['time'])
-            if 'temperature' in station:
+            if is_valid(station, 'temperature'):
                 temperature.labels(station_id=st_id).set(station['temperature'] / 10.0)
-            if 'sunshine' in station:
+            if is_valid(station, 'sunshine'):
                 sunshine.labels(station_id=st_id).set(station['sunshine'] / 10.0)
-            if 'precipitation' in station:
+            if is_valid(station, 'precipitation'):
                 precipitation.labels(station_id=st_id).set(station['precipitation'] / 10.0)
-            if 'pressure' in station:
+            if is_valid(station, 'pressure'):
                 pressure.labels(station_id=st_id).set(station['pressure'] / 10.0)
-            if 'humidity' in station:
+            if is_valid(station, 'humidity'):
                 humidity.labels(station_id=st_id).set(station['humidity'] / 10.0)
-            if 'dewPoint' in station:
+            if is_valid(station, 'dew_point'):
                 dew_point.labels(station_id=st_id).set(station['dewPoint'] / 10.0)
-            if 'cloudCoverTotal' in station and station['cloudCoverTotal'] <= 8:
+            if is_valid(station, 'cloudCoverTotal') and station['cloudCoverTotal'] <= 8:
                 cloud_cover_total.labels(station_id=st_id).set(station['cloudCoverTotal'])
-            if 'totalSnow' in station:
+            if is_valid(station, 'totalSnow'):
                 total_snow.labels(station_id=st_id).set(station['totalSnow'] / 10.0)
-            if 'windspeedmax' in station and station['windspeedmax'] < 32767:
+            if is_valid(station, 'windspeedmax'):
                 wind_speed_max.labels(station_id=st_id).set(station['windspeedmax'] / 10.0)
-            if 'winddirectionmean' in station:
+            if is_valid(station, 'winddirectionmean'):
                 wind_direction_mean.labels(station_id=st_id).set(station['winddirectionmean'] / 10.0)
-            if 'windspeedmean' in station and station['windspeedmean'] < 32767:
+            if is_valid(station, 'windspeedmean'):
                 wind_speed_mean.labels(station_id=st_id).set(station['windspeedmean'] / 10.0)
 
         time.sleep(300)
+
+if __name__ == "__main__":
+    main()
