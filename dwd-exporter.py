@@ -48,9 +48,9 @@ def main():
                 pressure.labels(station_id=st_id).set(station['pressure'] / 10.0)
             if is_valid(station, 'humidity'):
                 humidity.labels(station_id=st_id).set(station['humidity'] / 10.0)
-            if is_valid(station, 'dew_point'):
+            if is_valid(station, 'dewPoint'):
                 dew_point.labels(station_id=st_id).set(station['dewPoint'] / 10.0)
-            if is_valid(station, 'cloudCoverTotal') and station['cloudCoverTotal'] <= 8:
+            if is_valid(station, 'cloudCoverTotal'):
                 cloud_cover_total.labels(station_id=st_id).set(station['cloudCoverTotal'])
             if is_valid(station, 'totalSnow'):
                 total_snow.labels(station_id=st_id).set(station['totalSnow'] / 10.0)
